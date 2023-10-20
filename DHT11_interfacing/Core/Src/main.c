@@ -166,6 +166,7 @@ int main(void)
   /* USER CODE BEGIN 1 */
   Sensor_start();
   HAL_TIM_Base_Start(&htim1);
+  uint8_t *buffer = binaryToDecimal(Read_data());
 
   /* USER CODE END 1 */
 
@@ -175,7 +176,7 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-
+  
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -200,7 +201,7 @@ int main(void)
     /* USER CODE END WHILE */
   if (Sensor_response())
   { 
-    CDC_Transmit_FS(binaryToDecimal(Read_data()),8);
+    CDC_Transmit_FS(*buffer,8);
     HAL_Delay(1000);
   }
     /* USER CODE BEGIN 3 */
