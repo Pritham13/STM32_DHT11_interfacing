@@ -201,7 +201,7 @@ int main(void)
     /* USER CODE END WHILE */
   if (Sensor_response())
   { 
-    CDC_Transmit_FS(*buffer,8);
+    CDC_Transmit_FS(buffer,8);
     HAL_Delay(1000);
   }
     /* USER CODE BEGIN 3 */
