@@ -64,8 +64,8 @@ all: main-build
 main-build: DHT11_interfacing.elf secondary-outputs
 
 # Tool invocations
-DHT11_interfacing.elf DHT11_interfacing.map: $(OBJS) $(USER_OBJS) C:\Users\prit4\OneDrive\Desktop\stm32_files\DHT11_interfacing\STM32F401CCUX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "DHT11_interfacing.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\prit4\OneDrive\Desktop\stm32_files\DHT11_interfacing\STM32F401CCUX_FLASH.ld" --specs=nosys.specs -Wl,-Map="DHT11_interfacing.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+DHT11_interfacing.elf DHT11_interfacing.map: $(OBJS) $(USER_OBJS) C:\Users\prit4\OneDrive\Desktop\STM32_DHT11_interfacing\DHT11_interfacing\STM32F401CCUX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "DHT11_interfacing.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\prit4\OneDrive\Desktop\STM32_DHT11_interfacing\DHT11_interfacing\STM32F401CCUX_FLASH.ld" --specs=nosys.specs -Wl,-Map="DHT11_interfacing.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

@@ -53,6 +53,7 @@ TIM_HandleTypeDef htim1;
 void SystemClock_Config(void);
 static void MX_TIM1_Init(void);
 /* USER CODE BEGIN PFP */
+uint8_t binaryToDecimal(uint8_t binaryNumber);
 void Set_Pin_Input(void);
 void Set_Pin_Output(void);
 void microsecond_delay (uint16_t us);
@@ -65,6 +66,20 @@ extern uint8_t CDC_Transmit_FS(uint8_t* Buf, uint16_t Len);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+uint8_t binaryToDecimal(uint8_t binaryNumber) 
+  {
+    uint8_t decimalNumber = 0;
+    uint8_t base = 1; // Initialize the base to 2^0
+
+    while (binaryNumber > 0) {
+        uint8_t lastBit = binaryNumber % 10; // Get the rightmost bit
+        decimalNumber += lastBit * base; // Add the bit to the result
+        binaryNumber = binaryNumber / 10; // Remove the rightmost bit
+        base *= 2; // Update the base to the next power of 2
+    }
+  
+    return decimalNumber;
+  }
 void Set_Pin_Output(void){
     GPIO_InitTypeDef GPIO_InitStruct = {0};
 
@@ -185,7 +200,7 @@ int main(void)
     /* USER CODE END WHILE */
   if (Sensor_response())
   { 
-    CDC_Transmit_FS(Read_data(),8);
+    CDC_Transmit_FS(binaryToDecimal(Read_data()),8);
     HAL_Delay(1000);
   }
     /* USER CODE BEGIN 3 */
