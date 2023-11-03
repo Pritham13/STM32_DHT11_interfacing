@@ -46,7 +46,13 @@
 TIM_HandleTypeDef htim1;
 
 /* USER CODE BEGIN PV */
-
+typedef struct sensor_values{
+	uint8_t humidity_HB;
+	uint8_t humidity_LB;
+	uint8_t temperature_HB;
+	uint8_t temperature_LB;
+	uint8_t checksum;
+}sensor_val;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -61,25 +67,13 @@ void Sensor_start(void);
 uint8_t Sensor_response(void);
 uint8_t Read_data(void);
 extern uint8_t CDC_Transmit_FS(uint8_t* Buf, uint16_t Len);
-
+void print_dht11_data(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-uint8_t binaryToDecimal(uint8_t binaryNumber) 
-  {
-    uint8_t decimalNumber = 0;
-    uint8_t base = 1; // Initialize the base to 2^0
 
-    while (binaryNumber > 0) {
-        uint8_t lastBit = binaryNumber % 10; // Get the rightmost bit
-        decimalNumber += lastBit * base; // Add the bit to the result
-        binaryNumber = binaryNumber / 10; // Remove the rightmost bit
-        base *= 2; // Update the base to the next power of 2
-    }
-  
-    return decimalNumber;
-  }
+
 void Set_Pin_Output(void){
     GPIO_InitTypeDef GPIO_InitStruct = {0};
 
@@ -113,10 +107,24 @@ void Set_Pin_Input(void){
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(DHT11_PORT, &GPIO_InitStruct);
 }
+uint8_t binaryToDecimal(uint8_t binaryNumber)
+  {
+    uint8_t decimalNumber = 0;
+    uint8_t base = 1; // Initialize the base to 2^0
+
+    while (binaryNumber > 0) {
+        uint8_t lastBit = binaryNumber % 10; // Get the rightmost bit
+        decimalNumber += lastBit * base; // Add the bit to the result
+        binaryNumber = binaryNumber / 10; // Remove the rightmost bit
+        base *= 2; // Update the base to the next power of 2
+    }
+
+    return decimalNumber;
+  }
 void microsecond_delay (uint16_t us)
 {
 	__HAL_TIM_SET_COUNTER(&htim1,0);  // set the counter value a 0
-	while (__HAL_TIM_GET_COUNTER(&htim1) < us);  // wait for the counter to reach the us input in the parameter
+	while ((uint16_t)(__HAL_TIM_GET_COUNTER(&htim1)) < us);  // wait for the counter to reach the us input in the parameter
 }
 void Sensor_start (void)
 {
@@ -155,6 +163,36 @@ uint8_t Read_data (void)
 	}
 	return i;
 }
+void print_dht11_data(void)
+{	uint8_t sum;
+	char buffer[]="error fetching data",buffer_temp[]="error",buffer_hum[]="error";
+	sensor_val dht11;
+	Sensor_start();
+	if (Sensor_response>0)
+	{
+		dht11.humidity_HB = Read_data();
+		dht11.humidity_LB = Read_data();
+		dht11.temperature_HB = Read_data();
+		dht11.temperature_LB = Read_data();
+		dht11.checksum = Read_data();
+		sum = dht11.humidity_HB+dht11.humidity_LB+dht11.temperature_HB+dht11.temperature_LB;
+		if (sum == dht11.checksum)
+		{
+
+			dht11.humidity_HB = binaryToDecimal(dht11.humidity_HB);
+			dht11.temperature_HB = binaryToDecimal(dht11.temperature_HB );
+			sprintf(buffer_temp, "%u", dht11.temperature_HB);
+			sprintf(buffer_hum, "%u", dht11.humidity_HB);
+			CDC_Transmit_FS(buffer_temp,sizeof(buffer_temp));
+			CDC_Transmit_FS(buffer_hum,sizeof(buffer_hum));
+
+
+		}
+		else
+			CDC_Transmit_FS(buffer,sizeof(buffer));
+	}
+
+}
 /* USER CODE END 0 */
 
 /**
@@ -164,9 +202,7 @@ uint8_t Read_data (void)
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-  Sensor_start();
   HAL_TIM_Base_Start(&htim1);
-  uint8_t *buffer = binaryToDecimal(Read_data());
 
   /* USER CODE END 1 */
 
@@ -199,11 +235,10 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-  if (Sensor_response())
-  { 
-    CDC_Transmit_FS(buffer,8);
-    HAL_Delay(1000);
-  }
+
+	print_dht11_data();
+	HAL_Delay(2000);
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
