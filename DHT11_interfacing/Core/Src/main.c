@@ -37,7 +37,7 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-#define read_bits(j) (1<<(7-j))
+#define read_bits(x) (1<<(7-x))
 #define DHT11_PORT GPIOA
 #define DHT11_PIN GPIO_PIN_0
 /* USER CODE END PM */

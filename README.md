@@ -96,6 +96,7 @@ This data transmission process is crucial for extracting temperature and humidit
 
 the function for the same is as follows
 ```c
+#define read_bits(x) (1<<(7-x))//macro to store the data bits read 
 uint8_t Read_data (void)
 {
 	uint8_t i,j;
