@@ -1,5 +1,13 @@
 # STM32_DHT11_interfacing
-
+# Delay
+Since we need delay in micro seconds and the given HAL_Delay() function gives us a delay of 1ms the following function has been declared
+```c
+void microsecond_delay (uint16_t us)
+{
+	__HAL_TIM_SET_COUNTER(&htim1,0);  // set the counter value a 0
+	while ((uint16_t)(__HAL_TIM_GET_COUNTER(&htim1)) < us);
+}
+```
 ## DHT11 Temperature and Humidity Sensor
 
 The **DHT11** is a widely used sensor for measuring temperature and humidity. It comes equipped with an 8-bit microprocessor that outputs temperature and humidity values as serial data. Additionally, it features a specialized NTC (Negative Temperature Coefficient) thermistor for temperature measurement.
