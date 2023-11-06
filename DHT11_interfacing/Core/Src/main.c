@@ -59,6 +59,7 @@ typedef struct sensor_values{
 void SystemClock_Config(void);
 static void MX_TIM1_Init(void);
 /* USER CODE BEGIN PFP */
+void print(uint8_t val);
 uint8_t binaryToDecimal(uint8_t binaryNumber);
 void Set_Pin_Input(void);
 void Set_Pin_Output(void);
@@ -75,7 +76,7 @@ void print_dht11_data(void);
 
 
 void Set_Pin_Output(void){
-    GPIO_InitTypeDef GPIO_InitStruct = {0};
+   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOC_CLK_ENABLE();
@@ -107,6 +108,12 @@ void Set_Pin_Input(void){
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(DHT11_PORT, &GPIO_InitStruct);
 }
+void print(uint8_t val)
+{
+	uint8_t* v =&val;
+	CDC_Transmit_FS(v,sizeof(v));
+
+}
 uint8_t binaryToDecimal(uint8_t binaryNumber)
   {
     uint8_t decimalNumber = 0;
@@ -124,7 +131,9 @@ uint8_t binaryToDecimal(uint8_t binaryNumber)
 void microsecond_delay (uint16_t us)
 {
 	__HAL_TIM_SET_COUNTER(&htim1,0);  // set the counter value a 0
-	while ((uint16_t)(__HAL_TIM_GET_COUNTER(&htim1)) < us);  // wait for the counter to reach the us input in the parameter
+	while ((uint16_t)(__HAL_TIM_GET_COUNTER(&htim1)) < us);
+
+
 }
 void Sensor_start (void)
 {
@@ -140,8 +149,10 @@ uint8_t Sensor_response (void)
 	if (!(HAL_GPIO_ReadPin (DHT11_PORT, DHT11_PIN)))
 	{
 		microsecond_delay (80);
-		if ((HAL_GPIO_ReadPin (DHT11_PORT, DHT11_PIN))) Response = 1;
-		else Response = -1;
+		if ((HAL_GPIO_ReadPin (DHT11_PORT, DHT11_PIN)))
+			Response = 1;
+		else
+			Response = -1;
 	}
 	while ((HAL_GPIO_ReadPin (DHT11_PORT, DHT11_PIN)));   // wait for the pin to go low
 
@@ -165,7 +176,7 @@ uint8_t Read_data (void)
 }
 void print_dht11_data(void)
 {	uint8_t sum;
-	char buffer[]="error fetching data",buffer_temp[]="error",buffer_hum[]="error";
+	uint8_t buffer[] = "error";
 	sensor_val dht11;
 	Sensor_start();
 	if (Sensor_response>0)
@@ -181,11 +192,8 @@ void print_dht11_data(void)
 
 			dht11.humidity_HB = binaryToDecimal(dht11.humidity_HB);
 			dht11.temperature_HB = binaryToDecimal(dht11.temperature_HB );
-			sprintf(buffer_temp, "%u", dht11.temperature_HB);
-			sprintf(buffer_hum, "%u", dht11.humidity_HB);
-			CDC_Transmit_FS(buffer_temp,sizeof(buffer_temp));
-			CDC_Transmit_FS(buffer_hum,sizeof(buffer_hum));
-
+			print(dht11.humidity_HB);
+			print(dht11.temperature_HB);
 
 		}
 		else
@@ -223,7 +231,6 @@ int main(void)
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
-//  MX_GPIO_Init();
   MX_TIM1_Init();
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
@@ -235,10 +242,8 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-
-	print_dht11_data();
-	HAL_Delay(2000);
-
+	  print_dht11_data();
+	  HAL_Delay(1000);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -308,7 +313,7 @@ static void MX_TIM1_Init(void)
 
   /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 0;
+  htim1.Init.Prescaler = 84;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim1.Init.Period = 65535;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;

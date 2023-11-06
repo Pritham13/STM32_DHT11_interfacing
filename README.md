@@ -75,7 +75,7 @@ uint8_t Sensor_response (void)
 	return Response;
 }
 ```
-# DHT11 Data Transmission
+## DHT11 Data Transmission
 
 The DHT11 sensor transmits data by sending 40 bits of information. Each bit's transmission begins with a low-voltage level that lasts for 50 microseconds. The length of the subsequent high-voltage level signal determines whether the bit is a "0" or a "1."
 
