@@ -145,46 +145,32 @@ typedef struct sensor_values {
 } sensor_val;
 
 // Function to print DHT11 sensor data
-void print_dht11_data(void) {
-    uint8_t sum;
-    char buffer[] = "Error fetching data";  // Default error message
-    char buffer_temp[] = "error";           // Default error message for temperature
-    char buffer_hum[] = "error";            // Default error message for humidity
-    sensor_val dht11;
+void print_dht11_data(void)
+{	uint8_t sum;
+	uint8_t buffer[] = "error";
+	sensor_val dht11;
+	Sensor_start();
+	if (Sensor_response>0)
+	{
+		dht11.humidity_HB = Read_data();
+		dht11.humidity_LB = Read_data();
+		dht11.temperature_HB = Read_data();
+		dht11.temperature_LB = Read_data();
+		dht11.checksum = Read_data();
+		sum = dht11.humidity_HB+dht11.humidity_LB+dht11.temperature_HB+dht11.temperature_LB;
+		if (sum == dht11.checksum)
+		{
 
-    // Initialize the sensor
-    Sensor_start();
+			dht11.humidity_HB = binaryToDecimal(dht11.humidity_HB);
+			dht11.temperature_HB = binaryToDecimal(dht11.temperature_HB );
+			print(dht11.humidity_HB);
+			print(dht11.temperature_HB);
 
-    // Check if the sensor responded
-    if (Sensor_response > 0) {
-        // Read sensor data
-        dht11.humidity_HB = Read_data();
-        dht11.humidity_LB = Read_data();
-        dht11.temperature_HB = Read_data();
-        dht11.temperature_LB = Read_data();
-        dht11.checksum = Read_data();
+		}
+		else
+			CDC_Transmit_FS(buffer,sizeof(buffer));
+	}
 
-        // Calculate the checksum
-        sum = dht11.humidity_HB + dht11.humidity_LB + dht11.temperature_HB + dht11.temperature_LB;
-
-        // Check if the checksum matches
-        if (sum == dht11.checksum) {
-            // Convert binary values to decimal
-            dht11.humidity_HB = binaryToDecimal(dht11.humidity_HB);
-            dht11.temperature_HB = binaryToDecimal(dht11.temperature_HB);
-
-            // Convert temperature and humidity values to strings
-            sprintf(buffer_temp, "%u", dht11.temperature_HB);
-            sprintf(buffer_hum, "%u", dht11.humidity_HB);
-
-            // Transmit temperature and humidity data
-            CDC_Transmit_FS(buffer_temp, sizeof(buffer_temp));
-            CDC_Transmit_FS(buffer_hum, sizeof(buffer_hum);
-        } else {
-            // Transmit error message
-            CDC_Transmit_FS(buffer, sizeof(buffer));
-        }
-    }
 }
 
 ```
